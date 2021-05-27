@@ -2,58 +2,66 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
 public class Interactable : MonoBehaviour
+{
+    public Material normal;
+    public Material active;
+    private Renderer myRenderer;
+    private Vector3 startingPosition;
+    public float TimetoAct = 5f;
+    public float TimeCounter = 0f;
+    public bool isGazed = false;
+    public bool ActiveState = false;
+    public Interactable anterior;
+    public MovimientoPuente puente;
+    public int optionPuente;
+
+    private void Start()
     {
+        myRenderer = GetComponent<Renderer>();
+    }
 
-        private Vector3 startingPosition;
-        public float TimetoAct = 5f;
-        public float TimeCounter = 0f;
-        public bool isGazed = false;
+    public void SetGazedAt(bool gazedAt)
+    {
+        Debug.Log("Me estan mirando");
+        isGazed = gazedAt;
 
-        public void DistanceIdentifier()
+        if(!gazedAt)
+            TimeCounter = 0f;
+
+    }
+
+    public void DoSomething()
+    {
+        Debug.Log("Hice algo");
+        if(!ActiveState)
         {
-
-        }
-
-        void OnTriggerEnter(Collider c)
-        {
-         if(c.gameObject.name == "Player")
-             Debug.Log ("Player triggered");
-         else
-             Debug.Log ("Something else triggered");
-        }
-
-        public void SetGazedAt(bool gazedAt)
-        {
-            Debug.Log("Me estan mirando");
-            isGazed = gazedAt;
-
-            if(!gazedAt)
-                TimeCounter = 0f;
-
-        }
-
-        public void DoSomething()
-        {
-            Debug.Log("Hice algo");
-        }
-
-        public void Update()
-        {
-            if(isGazed)
+            if(anterior == null)
             {
-                if((TimeCounter += Time.deltaTime) >= TimetoAct)
-                {
-                    DoSomething();
-                    TimeCounter = 0f;
-                }
+                ActiveState = true;
+                myRenderer.material = active;
+                puente.ActivateMovement(optionPuente);
             }
-        }
+            else if(anterior.ActiveState == true)
+            {
+                ActiveState = true;
+                myRenderer.material = active;
+                puente.ActivateMovement(optionPuente);
+            }
 
-        private void Start()
-        {
-           /* startingPosition = transform.localPosition;
-            myRenderer = GetComponent<Renderer>();
-            SetGazedAt(false);*/
         }
     }
+
+    public void Update()
+    {
+        if(isGazed && !ActiveState)
+        {
+            if((TimeCounter += Time.deltaTime) >= TimetoAct)
+            {
+                DoSomething();
+                TimeCounter = 0f;
+            }
+        }
+    }
+}
